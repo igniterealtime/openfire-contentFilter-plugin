@@ -11,11 +11,26 @@
     <name>ContentFilter Plugin</name>
 
     <build>
-        <sourceDirectory>../../src/plugins/contentFilter/src/java</sourceDirectory>
+        <sourceDirectory>src/java</sourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>pull-parser</groupId>
+            <artifactId>pull-parser</artifactId>
+            <version>2.1.10</version>
+        </dependency>
+    </dependencies>
+
 </project>
