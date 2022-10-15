@@ -30,7 +30,7 @@ import org.jivesoftware.openfire.session.Session;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.util.EmailService;
-import org.jivesoftware.util.JiveGlobals;
+import org.jivesoftware.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
@@ -47,39 +47,66 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     private static final Logger Log = LoggerFactory.getLogger(ContentFilterPlugin.class);
 
+    private static String pluginName = "Content Filter";
+
     /**
      * The expected value is a boolean, if true the user identified by the value
      * of the property #VIOLATION_NOTIFICATION_CONTACT_PROPERTY will be notified
      * every time there is a content match, otherwise no notification will be
      * sent. Then default value is false.
      */
-    public static final String VIOLATION_NOTIFICATION_ENABLED_PROPERTY = "plugin.contentFilter.violation.notification.enabled";
+    public static final SystemProperty<Boolean> VIOLATION_NOTIFICATION_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.violation.notification.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
-     * The expected value is a user name. The default value is "admin".
+     * The expected value is a username. The default value is "admin".
      */
-    public static final String VIOLATION_NOTIFICATION_CONTACT_PROPERTY = "plugin.contentFilter.violation.notification.contact";
+    public static final SystemProperty<String> VIOLATION_NOTIFICATION_CONTACT_PROPERTY = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.contentFilter.violation.notification.contact")
+        .setDynamic(true)
+        .setDefaultValue("admin")
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true the user identified by the value
      * of the property #VIOLATION_NOTIFICATION_CONTACT_PROPERTY, will also
      * receive a copy of the offending packet. The default value is false.
      */
-    public static final String VIOLATION_INCLUDE_ORIGNAL_PACKET_ENABLED_PROPERTY = "plugin.contentFilter.violation.notification.include.original.enabled";
+    public static final SystemProperty<Boolean> VIOLATION_INCLUDE_ORIGNAL_PACKET_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.violation.notification.include.original.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true the user identified by the value
      * of the property #VIOLATION_NOTIFICATION_CONTACT_PROPERTY, will receive
      * notification by IM. The default value is true.
      */
-    public static final String VIOLATION_NOTIFICATION_BY_IM_ENABLED_PROPERTY = "plugin.contentFilter.violation.notification.by.im.enabled";
+    public static final SystemProperty<Boolean> VIOLATION_NOTIFICATION_BY_IM_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.violation.notification.by.im.enabled")
+        .setDynamic(true)
+        .setDefaultValue(true)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true the user identified by the value
      * of the property #VIOLATION_NOTIFICATION_CONTACT_PROPERTY, will receive
      * notification by email. The default value is false.
      */
-    public static final String VIOLATION_NOTIFICATION_BY_EMAIL_ENABLED_PROPERTY = "plugin.contentFilter.violation.notification.by.email.enabled";
+    public static final SystemProperty<Boolean> VIOLATION_NOTIFICATION_BY_EMAIL_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.violation.notification.by.email.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true the sender will be notified when
@@ -87,36 +114,66 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
      * rejected,i.e. the sender will not know that the message was rejected and
      * the receiver will not get the message. The default value is false.
      */
-    public static final String REJECTION_NOTIFICATION_ENABLED_PROPERTY = "plugin.contentFilter.rejection.notification.enabled";
+    public static final SystemProperty<Boolean> REJECTION_NOTIFICATION_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.rejection.notification.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a string, containing the desired message for the
      * sender notification.
      */
-    public static final String REJECTION_MSG_PROPERTY = "plugin.contentFilter.rejection.msg";
+    public static final SystemProperty<String> REJECTION_MSG_PROPERTY = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.contentFilter.rejection.msg")
+        .setDynamic(true)
+        .setDefaultValue("Message rejected. This is an automated server response.")
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true the value of #PATTERNS_PROPERTY
      * will be used for pattern matching.
      */
-    public static final String PATTERNS_ENABLED_PROPERTY = "plugin.contentFilter.patterns.enabled";
+    public static final SystemProperty<Boolean> PATTERNS_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.patterns.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a comma separated string of regular expressions.
      */
-    public static final String PATTERNS_PROPERTY = "plugin.contentFilter.patterns";
+    public static final SystemProperty<String> PATTERNS_PROPERTY = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.contentFilter.patterns")
+        .setDynamic(true)
+        .setDefaultValue("fox,dog")
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true Presence packets will be
      * filtered
      */
-    public static final String FILTER_STATUS_ENABLED_PROPERTY = "plugin.contentFilter.filter.status.enabled";
+    public static final SystemProperty<Boolean> FILTER_STATUS_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.filter.status.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a boolean, if true the value of #MASK_PROPERTY will
      * be used to mask matching content.
      */
-    public static final String MASK_ENABLED_PROPERTY = "plugin.contentFilter.mask.enabled";
+    public static final SystemProperty<Boolean> MASK_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.mask.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
      * The expected value is a string. If this property is set any matching
@@ -124,7 +181,12 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
      * content mask means that property #SENDER_NOTIFICATION_ENABLED_PROPERTY is
      * ignored. The default value is "**".
      */
-    public static final String MASK_PROPERTY = "plugin.contentFilter.mask";
+    public static final SystemProperty<String> MASK_PROPERTY = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.contentFilter.mask")
+        .setDynamic(true)
+        .setDefaultValue("***")
+        .setPlugin(pluginName)
+        .build();
     
     /**
      * The expected value is a boolean, if false packets whose contents matches one
@@ -132,10 +194,15 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
      * be accepted and may be optionally masked. The default value is false.
      * @see #MASK_ENABLED_PROPERTY
      */
-    public static final String ALLOW_ON_MATCH_PROPERTY = "plugin.contentFilter.allow.on.match";
+    public static final SystemProperty<Boolean> ALLOW_ON_MATCH_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.allow.on.match")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
 
     /**
-     * the hook into the inteceptor chain
+     * the hook into the interceptor chain
      */
     private InterceptorManager interceptorManager;
 
@@ -253,8 +320,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
     
     public void setAllowOnMatch(boolean allow) {
         allowOnMatch = allow;
-        JiveGlobals.setProperty(ALLOW_ON_MATCH_PROPERTY, allow ? "true"
-                : "false");
+        ALLOW_ON_MATCH_PROPERTY.setValue(allow);
         
         changeContentFilterMask();
     }
@@ -265,15 +331,14 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setMaskEnabled(boolean enabled) {
         maskEnabled = enabled;
-        JiveGlobals.setProperty(MASK_ENABLED_PROPERTY, enabled ? "true"
-                : "false");
+        MASK_ENABLED_PROPERTY.setValue(enabled);
 
         changeContentFilterMask();
     }
 
     public void setMask(String mas) {
         mask = mas;
-        JiveGlobals.setProperty(MASK_PROPERTY, mas);
+        MASK_PROPERTY.setValue(mas);
 
         changeContentFilterMask();
     }
@@ -296,15 +361,14 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setPatternsEnabled(boolean enabled) {
         patternsEnabled = enabled;
-        JiveGlobals.setProperty(PATTERNS_ENABLED_PROPERTY, enabled ? "true"
-                : "false");
+        PATTERNS_ENABLED_PROPERTY.setValue(enabled);
 
         changeContentFilterPatterns();
     }
 
     public void setPatterns(String patt) {
         patterns = patt;
-        JiveGlobals.setProperty(PATTERNS_PROPERTY, patt);
+        PATTERNS_PROPERTY.setValue(patt);
 
         changeContentFilterPatterns();
     }
@@ -315,8 +379,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setFilterStatusEnabled(boolean enabled) {
         filterStatusEnabled = enabled;
-        JiveGlobals.setProperty(FILTER_STATUS_ENABLED_PROPERTY,
-                enabled ? "true" : "false");
+        FILTER_STATUS_ENABLED_PROPERTY.setValue(enabled);
     }
 
     private void changeContentFilterPatterns() {
@@ -337,8 +400,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setRejectionNotificationEnabled(boolean enabled) {
         rejectionNotificationEnabled = enabled;
-        JiveGlobals.setProperty(REJECTION_NOTIFICATION_ENABLED_PROPERTY,
-                enabled ? "true" : "false");
+        REJECTION_NOTIFICATION_ENABLED_PROPERTY.setValue(enabled);
     }
 
     public String getRejectionMessage() {
@@ -347,7 +409,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setRejectionMessage(String message) {
         this.rejectionMessage = message;
-        JiveGlobals.setProperty(REJECTION_MSG_PROPERTY, message);
+        REJECTION_MSG_PROPERTY.setValue(message);
     }
 
     public boolean isViolationNotificationEnabled() {
@@ -356,14 +418,12 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setViolationNotificationEnabled(boolean enabled) {
         violationNotificationEnabled = enabled;
-        JiveGlobals.setProperty(VIOLATION_NOTIFICATION_ENABLED_PROPERTY,
-                enabled ? "true" : "false");
+        VIOLATION_NOTIFICATION_ENABLED_PROPERTY.setValue(enabled);
     }
 
     public void setViolationContact(String contact) {
         violationContact = contact;
-        JiveGlobals.setProperty(VIOLATION_NOTIFICATION_CONTACT_PROPERTY,
-                contact);
+        VIOLATION_NOTIFICATION_CONTACT_PROPERTY.setValue(contact);
     }
 
     public String getViolationContact() {
@@ -376,9 +436,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setViolationIncludeOriginalPacketEnabled(boolean enabled) {
         violationIncludeOriginalPacketEnabled = enabled;
-        JiveGlobals.setProperty(
-                VIOLATION_INCLUDE_ORIGNAL_PACKET_ENABLED_PROPERTY,
-                enabled ? "true" : "false");
+        VIOLATION_INCLUDE_ORIGNAL_PACKET_ENABLED_PROPERTY.setValue(enabled);
     }
 
     public boolean isViolationNotificationByIMEnabled() {
@@ -387,8 +445,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setViolationNotificationByIMEnabled(boolean enabled) {
         violationNotificationByIMEnabled = enabled;
-        JiveGlobals.setProperty(VIOLATION_NOTIFICATION_BY_IM_ENABLED_PROPERTY,
-                enabled ? "true" : "false");
+        VIOLATION_NOTIFICATION_BY_IM_ENABLED_PROPERTY.setValue(enabled);
     }
 
     public boolean isViolationNotificationByEmailEnabled() {
@@ -397,9 +454,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     public void setViolationNotificationByEmailEnabled(boolean enabled) {
         violationNotificationByEmailEnabled = enabled;
-        JiveGlobals.setProperty(
-                VIOLATION_NOTIFICATION_BY_EMAIL_ENABLED_PROPERTY,
-                enabled ? "true" : "false");
+        VIOLATION_NOTIFICATION_BY_EMAIL_ENABLED_PROPERTY.setValue(enabled);
     }
 
     public void initializePlugin(PluginManager pManager, File pluginDirectory) {
@@ -412,39 +467,31 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     private void initFilter() {
         // default to false
-        violationNotificationEnabled = JiveGlobals.getBooleanProperty(
-                VIOLATION_NOTIFICATION_ENABLED_PROPERTY, false);
+        violationNotificationEnabled = VIOLATION_NOTIFICATION_ENABLED_PROPERTY.getValue();
 
         // default to "admin"
-        violationContact = JiveGlobals.getProperty(
-                VIOLATION_NOTIFICATION_CONTACT_PROPERTY, "admin");
+        violationContact = VIOLATION_NOTIFICATION_CONTACT_PROPERTY.getValue();
 
         // default to true
-        violationNotificationByIMEnabled = JiveGlobals.getBooleanProperty(
-                VIOLATION_NOTIFICATION_BY_IM_ENABLED_PROPERTY, true);
+        violationNotificationByIMEnabled = VIOLATION_NOTIFICATION_BY_IM_ENABLED_PROPERTY.getValue();
 
         // default to false
-        violationNotificationByEmailEnabled = JiveGlobals.getBooleanProperty(
-                VIOLATION_NOTIFICATION_BY_EMAIL_ENABLED_PROPERTY, false);
+        violationNotificationByEmailEnabled = VIOLATION_NOTIFICATION_BY_EMAIL_ENABLED_PROPERTY.getValue();
 
         // default to false
-        violationIncludeOriginalPacketEnabled = JiveGlobals.getBooleanProperty(
-                VIOLATION_INCLUDE_ORIGNAL_PACKET_ENABLED_PROPERTY, false);
+        violationIncludeOriginalPacketEnabled = VIOLATION_INCLUDE_ORIGNAL_PACKET_ENABLED_PROPERTY.getValue();
 
         // default to false
-        rejectionNotificationEnabled = JiveGlobals.getBooleanProperty(
-                REJECTION_NOTIFICATION_ENABLED_PROPERTY, false);
+        rejectionNotificationEnabled = REJECTION_NOTIFICATION_ENABLED_PROPERTY.getValue();
 
         // default to english
-        rejectionMessage = JiveGlobals.getProperty(REJECTION_MSG_PROPERTY,
-                "Message rejected. This is an automated server response");
+        rejectionMessage = REJECTION_MSG_PROPERTY.getValue();
 
         // default to false
-        patternsEnabled = JiveGlobals.getBooleanProperty(
-                PATTERNS_ENABLED_PROPERTY, false);
+        patternsEnabled = PATTERNS_ENABLED_PROPERTY.getValue();
 
         // default to "fox,dog"
-        patterns = JiveGlobals.getProperty(PATTERNS_PROPERTY, "fox,dog");
+        patterns = PATTERNS_PROPERTY.getValue();
 
         try {
             changeContentFilterPatterns();
@@ -456,19 +503,16 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
         }
 
         // default to false
-        filterStatusEnabled = JiveGlobals.getBooleanProperty(
-                FILTER_STATUS_ENABLED_PROPERTY, false);
+        filterStatusEnabled = FILTER_STATUS_ENABLED_PROPERTY.getValue();
 
         // default to false
-        maskEnabled = JiveGlobals.getBooleanProperty(MASK_ENABLED_PROPERTY,
-                false);       
+        maskEnabled = MASK_ENABLED_PROPERTY.getValue();
 
         // default to "***"
-        mask = JiveGlobals.getProperty(MASK_PROPERTY, "***");
+        mask = MASK_PROPERTY.getValue();
         
         // default to false
-        allowOnMatch = JiveGlobals.getBooleanProperty(
-                ALLOW_ON_MATCH_PROPERTY, false);
+        allowOnMatch = ALLOW_ON_MATCH_PROPERTY.getValue();
         
         //v1.2.2 backwards compatibility
         if (maskEnabled) {
@@ -621,7 +665,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     private void sendViolationNotificationIM(String subject, String body) {
         Message message = createServerMessage(subject, body);
-        // TODO consider spining off a separate thread here,
+        // TODO consider spinning off a separate thread here,
         // in high volume situations, it will result in
         // in faster response and notification is not required
         // to be real time.
@@ -642,7 +686,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
         try {
             User user = UserManager.getInstance().getUser(violationContact);
             
-            //this is automatically put on a another thread for execution.
+            //this is automatically put on another thread for execution.
             EmailService.getInstance().sendMessage(user.getName(), user.getEmail(), "Openfire",
                 "no_reply@" + violationNotificationFrom.getDomain(), subject, body, null);
 
