@@ -610,7 +610,13 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
         return patternsEnabled
                 && !processed
                 && read
-                && (packet instanceof Message || (filterStatusEnabled && packet instanceof Presence));
+                && (packet instanceof Message || (filterStatusEnabled && packet instanceof Presence))
+                && isNotServerGeneratedPacket(packet);
+    }
+    
+    private boolean isNotServerGeneratedPacket(Packet packet) {
+        return packet.getFrom().getNode() != null
+            && packet.getFrom().getNode().length() > 0;
     }
 
     private void sendViolationNotification(Packet originalPacket) {
