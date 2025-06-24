@@ -40,7 +40,7 @@
     boolean includeOriginalEnabled = notificationOptions.contains("notificationincludeoriginal");
     
     //get handle to plugin
-    ContentFilterPlugin plugin = (ContentFilterPlugin) XMPPServer.getInstance().getPluginManager().getPlugin("contentfilter");
+    ContentFilterPlugin plugin = (ContentFilterPlugin) XMPPServer.getInstance().getPluginManager().getPluginByName("Content Filter").orElseThrow();
 
     //input validation
     Map<String, String> errors = new HashMap<String, String>();
