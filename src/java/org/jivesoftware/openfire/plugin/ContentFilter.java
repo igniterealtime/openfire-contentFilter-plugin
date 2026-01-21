@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2008 Jive Software. All rights reserved.
+ * Copyright (C) 2004-2008 Jive Software, 2025 Ignite Realtime Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.dom4j.Element;
-import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
 
 /**
@@ -36,10 +35,11 @@ public class ContentFilter {
 
     private String patterns;
 
-    private Collection<Pattern> compiledPatterns = new ArrayList<Pattern>();
+    private final Collection<Pattern> compiledPatterns = new ArrayList<>();
 
     private String mask;
 
+    private boolean caseSensitive;
 
     /**
      * A default instance will allow all message content.
@@ -55,21 +55,8 @@ public class ContentFilter {
      *
      * @param regExps a comma separated String of regular expressions
      */
-    public void setPatterns(String patterns) {
-        if (patterns != null) {
-            this.patterns = patterns;
-            String[] data = patterns.split(",");
-
-            compiledPatterns.clear();
-
-            for (int i = 0; i < data.length; i++) {
-                compiledPatterns.add(Pattern.compile(data[i]));
-            }
-        }
-        else {
-            clearPatterns();
-        }
-
+    public void setPatterns(String regExps) {
+        recompilePatterns(regExps, this.caseSensitive);
     }
 
     public String getPatterns() {
@@ -83,6 +70,24 @@ public class ContentFilter {
     public void clearPatterns() {
         patterns = null;
         compiledPatterns.clear();
+    }
+
+    private void recompilePatterns(String patterns, boolean isCaseSensitive)
+    {
+        this.caseSensitive = isCaseSensitive;
+        if (patterns != null) {
+            this.patterns = patterns;
+            String[] data = patterns.split(",");
+
+            compiledPatterns.clear();
+
+            for (String datum : data) {
+                compiledPatterns.add(Pattern.compile(datum, isCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+            }
+        }
+        else {
+            clearPatterns();
+        }
     }
 
     /**
@@ -104,7 +109,7 @@ public class ContentFilter {
     /**
      * Clears the content mask.
      *
-     * @see #filter(Message)
+     * @see #setMask(String)
      */
     public void clearMask() {
         mask = null;
@@ -117,16 +122,36 @@ public class ContentFilter {
     public boolean isMaskingContent() {
         return mask != null;
     }
-    
+
+    /**
+     * Defines if the patters are to be applied in a case-sensitive manner.
+     *
+     * @param caseSensitive desired case sensitivity for pattern matching
+     */
+    public void setCaseSensitive(boolean caseSensitive)
+    {
+        recompilePatterns(patterns, caseSensitive);
+    }
+
+    /**
+     * Returns if case sensitivity is enabled.
+     *
+     * @return true if the filter is currently case-sensitive
+     */
+    public boolean isCaseSensitive()
+    {
+        return this.caseSensitive;
+    }
+
     /**
      * Filters packet content.
      *
-     * @param packet the packet to filter, its content may be altered if there
+     * @param stanza the packet to filter, its content may be altered if there
      *            are content matches and a content mask is set
      * @return true if the msg content matched up, false otherwise
      */
-    public boolean filter(Packet p) {        
-        return process(p.getElement());
+    public boolean filter(Packet stanza) {
+        return process(stanza.getElement());
     }
 
     private boolean process(Element element) {
@@ -152,7 +177,7 @@ public class ContentFilter {
         
         String content = element.getText();
         
-        if ((content != null) && (content.length() > 0)) {
+        if ((content != null) && (!content.isEmpty())) {
             
             for (Pattern pattern : compiledPatterns) {                
                 

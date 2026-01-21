@@ -9,7 +9,7 @@
     <description>Scans message packets for defined patterns</description>
     <author>Conor Hayes</author>
     <version>${project.version}</version>
-    <date>2025-06-24</date>
+    <date>2025-09-29</date>
     <minServerVersion>4.4.0</minServerVersion>
     <minJavaVersion>11</minJavaVersion>
     

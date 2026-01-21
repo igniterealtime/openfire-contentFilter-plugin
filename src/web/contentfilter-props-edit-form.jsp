@@ -20,6 +20,7 @@
     String patterns =  ParamUtils.getParameter(request, "patterns");
     String [] filterStatusChecked = ParamUtils.getParameters(request, "filterstatus");
     boolean filterStatusEnabled = filterStatusChecked.length > 0;
+    boolean isCaseSensitive = ParamUtils.getBooleanParameter(request, "casesensitive");
  
     //match options
     boolean allowOnMatch = ParamUtils.getBooleanParameter(request, "allowonmatch");
@@ -96,6 +97,7 @@
             plugin.setPatternsEnabled(patternsEnabled);
             plugin.setPatterns(patterns);
             plugin.setFilterStatusEnabled(filterStatusEnabled);
+            plugin.setCaseSensitive(isCaseSensitive);
             plugin.setAllowOnMatch(allowOnMatch);
             plugin.setMaskEnabled(maskEnabled);
             plugin.setMask(mask);
@@ -131,6 +133,7 @@
     
     patternsEnabled = plugin.isPatternsEnabled();
     filterStatusEnabled = plugin.isFilterStatusEnabled();
+    isCaseSensitive = plugin.isCaseSensitive();
     allowOnMatch = plugin.isAllowOnMatch();
     maskEnabled = plugin.isMaskEnabled();
     notificationEnabled = plugin.isViolationNotificationEnabled();
@@ -225,6 +228,10 @@ Use the form below to edit content filter settings.<br>
                 </span>
                 <% } %>
         </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><input type="checkbox" name="casesensitive" value="casesensitive" <%= isCaseSensitive ? "checked" : "" %>/>Case sensitive.</td>
     </tr>
     <tr>
         <td>&nbsp;</td>

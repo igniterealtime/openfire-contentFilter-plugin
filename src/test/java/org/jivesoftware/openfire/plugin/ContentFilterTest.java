@@ -131,6 +131,70 @@ public class ContentFilterTest {
     }
 
     @Test
+    public void testFilterCaseSensitive() {
+
+        // filter on the word fox
+        filter.setPatterns("fox");
+        filter.setCaseSensitive(true);
+
+        // test message
+        Message message = new Message();
+        message.setBody("the quick brown fOx jumped over the lazy dog");
+        boolean matched = filter.filter(message);
+
+        // matches should be found
+        assertFalse(matched);
+    }
+
+    @Test
+    public void testFilterCaseInSensitive() {
+
+        // filter on the word fox
+        filter.setPatterns("fox");
+        filter.setCaseSensitive(false);
+
+        // test message
+        Message message = new Message();
+        message.setBody("the quick brown fOx jumped over the lazy dog");
+        boolean matched = filter.filter(message);
+
+        // matches should be found
+        assertTrue(matched);
+    }
+
+    @Test
+    public void testFilterCaseSensitiveUnicode() {
+
+        // filter on the word fox
+        filter.setPatterns("привет");
+        filter.setCaseSensitive(true);
+
+        // test message
+        Message message = new Message();
+        message.setBody("the quick brown fOx jumped over the lazy dog");
+        boolean matched = filter.filter(message);
+
+        // matches should be found
+        assertFalse(matched);
+    }
+
+    @Test
+    public void testFilterCaseInSensitiveUnicode() {
+
+        // filter on the word fox
+        filter.setPatterns("привет");
+        filter.setCaseSensitive(false);
+
+        // test message
+        Message message = new Message();
+        message.setBody("ПРИВЕТ");
+        boolean matched = filter.filter(message);
+
+        // matches should be found
+        assertTrue(matched);
+    }
+
+    @Test
     public void testFilterMessageBodyWithMask() {
 
         // filter on the word "fox" and "dog"
@@ -156,6 +220,7 @@ public class ContentFilterTest {
     public void testFilterWholeWords() {
         filter.setPatterns("at"); //match every instance of "at" in string
         filter.setMask("**");
+        filter.setCaseSensitive(true);
 
         Message message = new Message();
         message.setBody("At noon the fat cats ate lunch at Rizzos");
